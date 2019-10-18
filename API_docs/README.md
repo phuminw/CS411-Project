@@ -9,6 +9,7 @@
 
 #### Example call
 `query('Trump', 2)`
+
 `query('Taylor Swift', 3, 'high')`
 
 ### Spotify
