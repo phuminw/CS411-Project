@@ -1,0 +1,9 @@
+# Ignore compiled bytecode
+**/__pycache__/
+**/.pytest_cache/
+
+# Ignore virtual environment packages
+venv/
+
+# Ignore paramters with private information
+*.cfg
