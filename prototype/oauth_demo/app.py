@@ -27,7 +27,7 @@ SPOTIFY_API_URL = "{}/{}".format(SPOTIFY_API_BASE_URL, API_VERSION)
 
 # Server-side Parameters
 CLIENT_SIDE_URL = "http://127.0.0.1"
-PORT = 8080
+PORT = 5000
 REDIRECT_URI = "{}:{}/callback/q".format(CLIENT_SIDE_URL, PORT)
 SCOPE = "playlist-modify-public playlist-modify-private"
 STATE = ""
@@ -42,7 +42,6 @@ auth_query_parameters = {
     # "show_dialog": SHOW_DIALOG_str,
     "client_id": CLIENT_ID
 }
-
 
 @app.route("/")
 def index():
@@ -87,8 +86,78 @@ def callback():
 
     # Combine profile and playlist data to display
     display_arr = [profile_data] + playlist_data["items"]
-    return render_template("login.html", sorted_array=display_arr)
 
+    print("[~~~] Displaying profile data!")
+    #print(profile_data['display_name'])
+    username = profile_data['display_name']
+    print("USER: ", username)
+
+    print('\n[------------------------------------]\n')
+
+    playlists = []
+
+    print("[~~~] Displaying playlist data! \n")
+    for playlist in playlist_data["items"]:
+        print("[!!!] New Playlist Data!")
+
+        print(playlist)
+
+        # print("Playlist Name: {} \n".format(playlist['name']))
+        playlist_name = playlist['name']
+        
+        # print("Playlist Link: {} \n".format(playlist['external_urls']['spotify']))
+        playlist_link = playlist['external_urls']['spotify']
+
+        try: 
+            # print("Playlist Image: {} \n".format(playlist['images']))
+            playlist_image = playlist['images'][0].get('url')
+        except:
+            print("[!!!] No Playlist URL!")
+
+        track_response = requests.get(playlist['tracks']['href'], headers=authorization_header)
+
+        # print("API response: {} \n".format(track_response))
+
+        track_data = json.loads(track_response.text)
+        track_data = track_data['items']
+
+        # arr_track_addededbys = []
+        arr_track_names = []
+        arr_track_artists = []
+        arr_track_artist_links = []
+
+        for items in track_data:
+            # print("Track added by: ", items['added_by']['external_urls']['spotify'])
+            # track_addedby = items['added_by']['external_urls']['spotify']
+            # arr_track_addededbys.append(track_addedby)
+            
+            try:
+                # The track name and artist is stored in a dict, var track_strings 
+                track_strings = items['track']['album']['artists'][0]
+                # print("Track Name: ", items['track']['name'])
+                track_name = items['track']['name']
+                arr_track_names.append(track_name)
+
+                # print("Track Artist: ", track_strings.get("name"))
+                track_artist = track_strings.get("name")
+                arr_track_artists.append(track_artist)
+
+                print("Track Artist URL: ", track_strings.get("external_urls").get("spotify"))
+                track_artist_link = track_strings.get("external_urls").get("spotify")
+                arr_track_artist_links.append(track_artist_link)
+
+                print()
+
+            except:
+                # If the playlist is empty, then the playlist on the application will be displayed but empty as well
+                print("[!!!] ERROR READING PLAYLIST CONTENTS")
+                break
+            
+        playlists.append([[playlist_name, playlist_link, playlist_image], zip(arr_track_names, arr_track_artists, arr_track_artist_links)])
+
+        print("[----------------------------]")
+
+    return render_template("login.html", username=username, playlists=playlists)
 
 if __name__ == "__main__":
     app.run(debug=True, port=PORT)

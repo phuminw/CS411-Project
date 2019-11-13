@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>OAuth Demo</title>
+    <!-- Main CSS sheet -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+    <h1>OAuth SSO Spotify Demo</h1>
+    <h3>Displaying playlist data for user: {{ username }} </h3>
+
+    <hr>
+
+    {% for playlist_info, track_info in playlists%}
+        <h2>Playlist Name: {{ playlist_info[0] }}</h2>
+        <a href={{ playlist_info[1] }} target="_blank"><img src={{ playlist_info[2] }}></a>
+
+        <h4>Tracks: </h4>
+        {% for arr_track_names, arr_track_artists, arr_track_artist_links in track_info %}
+            <p>Track Name: {{ arr_track_names }}</p>
+            <p>Track Artist: {{ arr_track_artists }} </p>
+            <!-- <p>Track Link: <a href={{ arr_track_link }} target="_blank">Link</a> </p>  -->
+            <p>Artist Link: <a href={{ arr_track_artist_links }} target=_blank>Link</a></p>
+        {% endfor %}
+
+    {% endfor %}
+</body>
+
+</html>
