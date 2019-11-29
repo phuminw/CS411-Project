@@ -92,15 +92,15 @@ def callback():
     username = profile_data['display_name']
     print("USER: ", username)
 
-    print('\n[------------------------------------]\n')
+    # print('\n[------------------------------------]\n')
 
     playlists = []
 
-    print("[~~~] Displaying playlist data! \n")
+    # print("[~~~] Displaying playlist data! \n")
     for playlist in playlist_data["items"]:
-        print("[!!!] New Playlist Data!")
+        # print("[!!!] New Playlist Data!")
 
-        print(playlist)
+        # print(playlist)
 
         # print("Playlist Name: {} \n".format(playlist['name']))
         playlist_name = playlist['name']
@@ -142,11 +142,9 @@ def callback():
                 track_artist = track_strings.get("name")
                 arr_track_artists.append(track_artist)
 
-                print("Track Artist URL: ", track_strings.get("external_urls").get("spotify"))
+                #print("Track Artist URL: ", track_strings.get("external_urls").get("spotify"))
                 track_artist_link = track_strings.get("external_urls").get("spotify")
                 arr_track_artist_links.append(track_artist_link)
-
-                print()
 
             except:
                 # If the playlist is empty, then the playlist on the application will be displayed but empty as well
@@ -155,9 +153,19 @@ def callback():
             
         playlists.append([[playlist_name, playlist_link, playlist_image], zip(arr_track_names, arr_track_artists, arr_track_artist_links)])
 
-        print("[----------------------------]")
+        #print("[----------------------------]")
 
     return render_template("login.html", username=username, playlists=playlists)
+
+@app.route("/logout")
+def logout():
+    print("We're at least in the logout!")
+    if request.method == 'POST':
+        print("Logging out!")
+        if 'Logout' in request.form:
+            return redirect("https://accounts.spotify.com/en/logout", code=302)
+    else:
+        print("Something is wrong here!")
 
 if __name__ == "__main__":
     app.run(debug=True, port=PORT)

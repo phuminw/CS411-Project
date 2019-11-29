@@ -10,6 +10,11 @@
 
 <body>
     <h1>OAuth SSO Spotify Demo</h1>
+    
+    <form class="form" action="{{ url_for('logout') }}" method="POST">
+        <input type="button" value="Logout" />
+    </form>
+    
     <h3>Displaying playlist data for user: {{ username }} </h3>
 
     <hr>
