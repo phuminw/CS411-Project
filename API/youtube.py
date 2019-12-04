@@ -1,4 +1,4 @@
-import requests, json
+import json
 from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 from googleapiclient.discovery import build, Resource
 from google.oauth2.credentials import Credentials
