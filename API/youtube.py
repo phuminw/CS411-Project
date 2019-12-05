@@ -1,30 +1,47 @@
 import json
-from google_auth_oauthlib.flow import Flow, InstalledAppFlow
+from google_auth_oauthlib.flow import Flow#, InstalledAppFlow
 from googleapiclient.discovery import build, Resource
 from google.oauth2.credentials import Credentials
 from googleapiclient.errors import HttpError
 
-def get_auth_client_fresh(CLIENT_SECRET = 'cred.json'):
-    ''' Construct Resource object for interaction with the YouTube service
-    
-    Args:
-        CLIENT_SECRET (Optional(str)): The filename of application client info in Google format
+def form_url(CLIENT_SECRET = 'cred.json'):
+    ''' Form an authorization URL
 
-    Returns:
-        Tuple(googleapiclient.discovery.Resource, dict): A Resource object with methods for interacting with the YouTube service and tokens of authenticated user.
-        None: Specified client secret cannot be found.
+        Args:
+            CLIENT_SECRET (Optional(str)): The filename of application client info in Google format
+        Returns:
+            google_auth_oauthlib.flow.Flow: Flow object to be used to OAuth authentication
+            str: An authorization URL
     '''
     SCOPES = ['https://www.googleapis.com/auth/youtube'] 
+
+    try:
+        flow = Flow.from_client_secrets_file(CLIENT_SECRET, SCOPES) 
+    except FileNotFoundError:
+        return False
+
+    flow.redirect_uri = 'http://localhost:5555' # TODO: Change to web app address
+    return flow, flow.authorization_url()[0]
+
+def get_auth_client(flow, code):
+    ''' Construct Resource object for interaction with the YouTube service
+    
+        Args:
+            flow (google_auth_oauthlib.flow.Flow): Flow object to be used to OAuth authentication
+            code (str): Code received from callback
+        Returns:
+            Tuple(googleapiclient.discovery.Resource, dict): A Resource object with methods for interacting with the YouTube service and tokens of authenticated user.
+            None: Specified client secret cannot be found.
+    '''
+
+    if type(flow) != Flow:
+        return None
+
     API_SERVICE_NAME = 'youtube'
     API_VERSION = 'v3'
 
-    try:
-        flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET, SCOPES) 
-    except FileNotFoundError:
-        return None
-    # flow = Flow.from_client_secrets_file(CLIENT_SECRET, SCOPES) 
-    # flow.redirect_uri = 'http://localhost:5555' # TODO: Change to web app address
-    credentials = flow.run_local_server()  # TODO: implement manual flow in web app
+    flow.fetch_token(code=code)
+    credentials = flow.credentials
     return build(API_SERVICE_NAME, API_VERSION, credentials = credentials), {'token':credentials.token, 'refresh_token':credentials.refresh_token, 'token_uri':credentials.token_uri}
 
 def get_auth_client_returning(info, CLIENT_SECRET='cred.json'):
@@ -70,7 +87,7 @@ def get_auth_client_returning(info, CLIENT_SECRET='cred.json'):
 
         return build(API_SERVICE_NAME, API_VERSION, credentials = Credentials(token, refresh_token=refresh_token, token_uri=token_uri, client_id=client_id, client_secret=client_secret)), info
     except FileNotFoundError:
-        return None
+        return False
 
 def query(client, query, maxResults, thumbnails=False):
     ''' Make YouTube search on the given keyword and limit result to the given number
@@ -101,7 +118,6 @@ def query(client, query, maxResults, thumbnails=False):
 
     return videos
 
-
 def create_playlist(client, title, description=''):
     ''' Create playlist using the given information. User MUST have YouTube account.
 
@@ -111,14 +127,19 @@ def create_playlist(client, title, description=''):
         description Optional(str): A description for a playlist
 
     Returns:
-        dict: Response from the service after successfully created a playlist
+        bool: Indicate whether operation is success
     '''
 
     # Check client object type
     if type(client) != Resource:
         return None
 
-    return client.playlists().insert(part='snippet', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN', 'privacyStatus':'private'}}).execute()
+    try:
+        client.playlists().insert(part='snippet', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN', 'privacyStatus':'private'}}).execute()
+        
+        return True
+    except HttpError:
+        return False
 
 def get_playlist(client, thumbnails=False):
     ''' Get all playlists on the account 
@@ -190,7 +211,7 @@ def insert_to_playlist(client, playlist_id, video_id):
         video_id (str): Video id
 
     Returns:
-        dict: Response from the service after successfully created a playlist
+        bool: Indicate whether operation is success
         None: Parameter(s) is/are invalid
     '''
 
@@ -199,6 +220,31 @@ def insert_to_playlist(client, playlist_id, video_id):
         return None
 
     try:
-        return client.playlistItems().insert(part='snippet', body={'snippet':{'playlistId': playlist_id, 'resourceId':{'videoId':video_id, 'kind':'youtube#video'}}}).execute()
+        client.playlistItems().insert(part='snippet', body={'snippet':{'playlistId': playlist_id, 'resourceId':{'videoId':video_id, 'kind':'youtube#video'}}}).execute()
+
+        return True
     except HttpError:
+        return False
+
+def insert_videos_to_playlist(client, playlist_id, video_ids):
+    ''' Insert a list of videos into a playlist using the given information.
+
+    Args:
+        client (googleapiclient.discovery.Resource): A Resource object with methods for interacting with the YouTube service.
+        playlist_id (str): User playlist id
+        video_ids (List(str)): A list of video ids
+
+    Returns:
+        bool: Indicate whether operation is success
+        None: Parameter(s) is/are invalid
+    '''
+    if type(client) != Resource:
         return None
+
+    try:
+        for v in videos:
+            insert_to_playlist(client, playlist_id, v)
+        
+        return True
+    except:
+        return False # Something went wrong
