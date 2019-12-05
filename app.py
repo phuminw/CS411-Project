@@ -86,66 +86,85 @@ def callback():
     # Combine profile and playlist data to display
     display_arr = [profile_data] + playlist_data["items"]
 
-    print("[~~~] Displaying profile data!")
+    # Store the user's Spotify username
     username = profile_data['display_name']
     print("USER: ", username)
 
     playlists = []
 
+    # playlist_data["items"] contains all of user's playlists; their track names, their artists, and all their links
+    # The for loop iterates through the list of playlists, working with one playlist at a time
     for playlist in playlist_data["items"]:
-        # print("[!!!] New Playlist Data!")
-
-        # print(playlist)
-
+        
+        # Store the playlist name
         # print("Playlist Name: {} \n".format(playlist['name']))
         playlist_name = playlist['name']
-        
+       
+        # Store the playlist's link (to the Spotify playlist)
         # print("Playlist Link: {} \n".format(playlist['external_urls']['spotify']))
         playlist_link = playlist['external_urls']['spotify']
 
+
+        # Attempt to grab the Playlist's image 
         try: 
+            # Store the playlist image's URL
             # print("Playlist Image: {} \n".format(playlist['images']))
             playlist_image = playlist['images'][0].get('url')
         except:
-            print("[!!!] No Playlist URL!")
+            # If no image available, print the response
+            print("[!!!] No Playlist Image URL!")
 
+        # Load the playlist data: storing the data structure containing the playlist's entire track data
         track_response = requests.get(playlist['tracks']['href'], headers=authorization_header)
-
         # print("API response: {} \n".format(track_response))
 
+        # Convert the returned track data for this specific playlist to plain text and access the stored track info
         track_data = json.loads(track_response.text)
         track_data = track_data['items']
 
-        # arr_track_addededbys = []
+        # Three arrays containing individual track information for current accessed playlist
+        # Each unique array position corresponds to the same track
+        # E.g. 
+            #   arr_track_names[0]
+            #   arr_track_artists[0]
+            #   arr_track_artist_links[0]
+            #
+            #   Contains information on the track name, the track artist, and the artist link for track 1 on current playlist
+
         arr_track_names = []
         arr_track_artists = []
         arr_track_artist_links = []
 
+        # The for loop iterates through the track_data, working on one song/track at a time
+        # Pulls the track's name, artist, and artist link and appends to the respective arrays declared above
         for items in track_data:
-            # print("Track added by: ", items['added_by']['external_urls']['spotify'])
-            # track_addedby = items['added_by']['external_urls']['spotify']
-            # arr_track_addededbys.append(track_addedby)
-            
             try:
-                # The track name and artist is stored in a dict, var track_strings 
+                # Spotify stores The track name and artist info in a dict; this extracted info is stored in var track_strings 
                 track_strings = items['track']['album']['artists'][0]
-                #print("Track Name: ", items['track']['name'])
+
+                # Extract the track name and store into array arr_track_names 
+                # print("Track Name: ", items['track']['name'])
                 track_name = items['track']['name']
                 arr_track_names.append(track_name)
 
+                # Extract the track artist and store into array arr_track_artists
                 # print("Track Artist: ", track_strings.get("name"))
                 track_artist = track_strings.get("name")
                 arr_track_artists.append(track_artist)
 
-                #print("Track Artist URL: ", track_strings.get("external_urls").get("spotify"))
+                # Extract the track artist link and store into array arr_track_artist_links
+                # print("Track Artist URL: ", track_strings.get("external_urls").get("spotify"))
                 track_artist_link = track_strings.get("external_urls").get("spotify")
                 arr_track_artist_links.append(track_artist_link)
 
             except:
-                # If the playlist is empty, then the playlist on the application will be displayed but empty as well
+                # If the playlist is empty, then the playlist on the application will be displayed will be empty
+                # Will break to avoid storing extraneous information into playlists
                 print("[!!!] ERROR READING PLAYLIST CONTENTS")
                 break
-            
+        
+        # Once the current playlist has been completely iterated through, the arrays will then be appended to the playlists array
+        # Each playlist element in playlists possess the structure detailed below in the 'Returns' section.
         playlists.append([[playlist_name, playlist_link, playlist_image], zip(arr_track_names, arr_track_artists, arr_track_artist_links)])
 
     '''
@@ -162,9 +181,12 @@ def callback():
                         ('Stronger', 'Kanye West', 'https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x')
                         ('Rap God', 'Eminem', 'https://open.spotify.com/artist/7dGJo4pcD2V6oG8kP0tJRR')
     '''
-
     return render_template("home.html", username=username, playlists=playlists)
 
+'''
+An attempt to implement server-side logout functionality; Spotify provides a URL to logout 
+    which is presently used instead
+'''
 # @app.route("/logout")
 # def logout():
 #     print("We're at least in the logout!")

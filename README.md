@@ -1,5 +1,10 @@
 # CS411 Final Project
 
+## Disclaimer!
+This guide was created using a **Linux OS** machine!
+
+<hr>
+
 ## Setup
 
 1. Clone the repository from Github.
@@ -7,8 +12,10 @@
 3. Create a virtual environment and begin downloading the required libraries.
     * To begin, install virtual environment. Make sure to install using **pip3**.
         `pip3 install virtualenv`
-    * Create a virtual environment. There are several ways to do this, but this is the terminal command I used:
-        `virtualenv -p /usr/bin/python3 venv`
+    * Create a virtual environment. There are several ways to do this, but this is the terminal command I used: <br />
+            `virtualenv -p /usr/bin/python3 venv` <br />
+        You can also use: <br />
+            `virtualenv -p python3 venv`
 4. Enter the virtual environment with the following command:
     *   `source venv/bin/activate`
 5. Install the required dependencies to run Flask with the following command:
