@@ -129,7 +129,7 @@ def callback():
             try:
                 # The track name and artist is stored in a dict, var track_strings 
                 track_strings = items['track']['album']['artists'][0]
-                # print("Track Name: ", items['track']['name'])
+                #print("Track Name: ", items['track']['name'])
                 track_name = items['track']['name']
                 arr_track_names.append(track_name)
 
@@ -147,6 +147,21 @@ def callback():
                 break
             
         playlists.append([[playlist_name, playlist_link, playlist_image], zip(arr_track_names, arr_track_artists, arr_track_artist_links)])
+
+    '''
+    Returns:
+
+        username: The username of the user, unique to each Spotify user
+
+        playlists: Contains all the information returned from Spotify on the user playlists
+            The structure is the following:
+                [ [playlist name, playlist link, playlist image] ,  zipped( [(track name, artist, link)] )
+                E.g. You will see the following information structure:
+                    [ ['Summer Vibes', 'https://open.spotify.com/artist/thisisanexample', 'https://imagelink'], [...] ]
+                    The [...] could be:
+                        ('Stronger', 'Kanye West', 'https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x')
+                        ('Rap God', 'Eminem', 'https://open.spotify.com/artist/7dGJo4pcD2V6oG8kP0tJRR')
+    '''
 
     return render_template("home.html", username=username, playlists=playlists)
 
