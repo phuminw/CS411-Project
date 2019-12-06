@@ -19,7 +19,7 @@ def form_url(CLIENT_SECRET = 'cred.json'):
     except FileNotFoundError:
         return False
 
-    flow.redirect_uri = 'http://localhost:5555' # TODO: Change to web app address
+    flow.redirect_uri = 'http://localhost:5000' # TODO: Change to web app address
     return flow, flow.authorization_url()[0]
 
 def get_auth_client(flow, code):
