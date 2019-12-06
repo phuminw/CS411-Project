@@ -3,6 +3,7 @@ from flask import Flask, request, redirect, g, render_template, url_for
 import requests
 from urllib.parse import quote
 from app import database
+from app.youtube import *
 
 import configparser
 
@@ -33,6 +34,10 @@ SCOPE = "playlist-modify-public playlist-modify-private"
 STATE = ""
 SHOW_DIALOG_bool = True
 SHOW_DIALOG_str = str(SHOW_DIALOG_bool).lower()
+
+# Store flow object to use for Youtube
+flow = None
+client_ob = None
 
 auth_query_parameters = {
     "response_type": "code",
@@ -95,10 +100,11 @@ def callback():
         # username
         # playlists
     # Initialize the db connection
-    database.init_db()
+
+   # database.init_db()
 
     # Initialize a document for the current user
-    database.init_user(username)
+   # database.init_user(username)
 
     ######################
 
@@ -179,7 +185,7 @@ def callback():
         # Each playlist element in playlists possess the structure detailed below in the 'Returns' section.
         playlists.append([[playlist_name, playlist_link, playlist_image], list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))])
 
-        db_playlist = list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))
+        # db_playlist = list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))
 
     '''
     Stores the following into the MongoDB database:
@@ -198,7 +204,9 @@ def callback():
     Once stored, redirected to Home page
     '''
 
-    return redirect(url_for("displayHome"))
+    #database.input_playlist(username, playlist_name, db_playlist)
+
+    return redirect(url_for("youtubeLogin"))
 
 '''
 An attempt to implement server-side logout functionality; Spotify provides a URL to logout 
@@ -215,6 +223,20 @@ An attempt to implement server-side logout functionality; Spotify provides a URL
 #         print("Something is wrong here!")
 
 '''
+    User must log into Youtube first
+'''
+@app.route("/youtube_login", methods = ['GET', 'POST'])
+def youtubeLogin():
+    global flow
+    if request.method == 'POST':
+        print("Received POST request for Youtube Login!")
+        if request.form['youtube'] == 'youtube':
+            flow, url = form_url()
+            return redirect(url, code=302)
+    else:
+        return render_template("youtube_login.html")
+
+'''
     The implementation below allows the user to redirect to another webpage using POST requests in HTML
 '''
 @app.route("/home", methods = ['GET', 'POST'])
@@ -224,6 +246,11 @@ def displayHome():
         if request.form['newpage'] == 'newpage':
             return render_template("newpage1.html")
     else:
+        code = request.args.get('code')
+        client_ob, cred = get_auth_client(flow, code)
+        print(get_playlist(client_ob))
+        # TODO: Store Youtube cred into database, linked to specific user
+        # TODO: Check database if user cred works
         return render_template("newpage2.html")
     
 if __name__ == "__main__":
