@@ -1,14 +1,19 @@
 import json
 from pymongo import MongoClient
+import subprocess
 
 #global reference to db collection
 USERS = None
 client = None
 
+
 def init_db():
   """ initialize db connection and populate USERS with collection reference"""
   global USERS
   global client
+
+  command = 'mongod'
+  subprocess.Popen([command])
 
   client = MongoClient('localhost')
   USERS = client.db.cl
@@ -49,8 +54,6 @@ def insert_playlist_old(user_id, playlist_data, playlist_name):
       artists += [artist['name']]
   
     playlist += [(name, track_id, artists)]
-
-  print(playlist)
 
   old_playlists = user['playlists']
   old_playlists[playlist_name] = playlist

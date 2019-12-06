@@ -19,7 +19,7 @@ def form_url(CLIENT_SECRET = 'cred.json'):
     except FileNotFoundError:
         return False
 
-    flow.redirect_uri = 'http://localhost:5555' # TODO: Change to web app address
+    flow.redirect_uri = 'http://localhost:5000/home' # TODO: Change to web app address
     return flow, flow.authorization_url()[0]
 
 def get_auth_client(flow, code):
@@ -130,9 +130,8 @@ def create_playlist(client, title, description=''):
         return None
 
     try:
-        client.playlists().insert(part='snippet', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN', 'privacyStatus':'private'}}).execute()
-        
-        return True
+        return client.playlists().insert(part='snippet', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN', 'privacyStatus':'private'}}).execute()['id']
+
     except HttpError:
         return False
 
@@ -239,7 +238,7 @@ def insert_videos_to_playlist(client, playlist_id, video_ids):
 # Testing youtube.py functionality
 def main():
     flow, url = form_url()
-    print(url)
+    
     client, cred = get_auth_client(flow, 'CODE_FROM_CALLBACK')
     # print(cred_tokens.keys())
     # with open('cred_auth.json', 'r') as c:
