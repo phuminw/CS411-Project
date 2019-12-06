@@ -23,21 +23,35 @@ This guide was created using a **Linux OS** machine!
     * At the time of writing this guide, you should check if the required dependencies have been installed correctly by running the following in the terminal line:
         `pip3 freeze`
     
-        certifi==2019.9.11 <br />
-        chardet==3.0.4 <br />
-        Click==7.0 <br />
-        Django==2.2.6 <br />
-        Flask==1.1.1 <br />
-        idna==2.8 <br />
-        itsdangerous==1.1.0 <br />
-        Jinja2==2.10.3 <br />
-        MarkupSafe==1.1.1 <br />
-        pkg-resources==0.0.0 <br />
-        pytz==2019.3 <br />
-        requests==2.22.0 <br />
-        sqlparse==0.3.0 <br />
-        urllib3==1.25.6 <br />
-        Werkzeug==0.16.0 <br />
+        cachetools==3.1.1
+        certifi==2019.9.11
+        chardet==3.0.4
+        Click==7.0
+        Django==2.2.6
+        Flask==1.1.1
+        google-api-python-client==1.7.11
+        google-auth==1.7.2
+        google-auth-httplib2==0.0.3
+        google-auth-oauthlib==0.4.1
+        httplib2==0.14.0
+        idna==2.8
+        itsdangerous==1.1.0
+        Jinja2==2.10.3
+        MarkupSafe==1.1.1
+        oauthlib==3.1.0
+        pkg-resources==0.0.0
+        pyasn1==0.4.8
+        pyasn1-modules==0.2.7
+        pymongo==3.9.0
+        pytz==2019.3
+        requests==2.22.0
+        requests-oauthlib==1.3.0
+        rsa==4.0
+        six==1.13.0
+        sqlparse==0.3.0
+        uritemplate==3.0.0
+        urllib3==1.25.6
+        Werkzeug==0.16.0
 
     * Your `pip3 freeze` command should match the above.
 
@@ -45,6 +59,7 @@ This guide was created using a **Linux OS** machine!
     * Create a file named **config.cfg** in the same directory as **app.py, requirements.txt, LICENSE, ...**
     * Go to [Spotify Developer](https://developer.spotify.com/dashboard/applications)
     * Create your own application and look for the Client ID and Secret. You will need both of these to use the API.
+    * You also need to set your own session secret to use Flask Sessions.
     * Your **config.cfg** should resemble the following:
 
         [DEFAULT]
@@ -54,3 +69,10 @@ This guide was created using a **Linux OS** machine!
 
 7. You are now ready to run the Flask application. To run the application, execute the following command in the terminal line:
     *   `python3 app.py`
+
+## Notes
+* Spotify does not allow *POST* requests. Instead, use *PUT* to communicate with the server. 
+    - Supporting documentation: [Link](https://stackoverflow.com/questions/46119001/swift-spotify-api-error-code-405-add-to-library)
+    - You can get around this limitation by adding the redirected URL to Spotify's whitelist of supported websites on the Spotify Web API Application dashboard.
+* Cannot use POST or GET requests in link callback due to authorization expectations for a specific request from the Spotify server.
+* Cannot use Flask session variables as they are too small to store the required user data.

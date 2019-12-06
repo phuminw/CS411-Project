@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request, redirect, g, render_template
+from flask import Flask, request, redirect, g, render_template, url_for
 import requests
 from urllib.parse import quote
 
@@ -48,7 +48,6 @@ def index():
     url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in auth_query_parameters.items()])
     auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
     return redirect(auth_url)
-
 
 @app.route("/callback/q")
 def callback():
@@ -165,10 +164,10 @@ def callback():
         
         # Once the current playlist has been completely iterated through, the arrays will then be appended to the playlists array
         # Each playlist element in playlists possess the structure detailed below in the 'Returns' section.
-        playlists.append([[playlist_name, playlist_link, playlist_image], zip(arr_track_names, arr_track_artists, arr_track_artist_links)])
+        playlists.append([[playlist_name, playlist_link, playlist_image], list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))])
 
     '''
-    Returns:
+    Stores the following into the MongoDB database:
 
         username: The username of the user, unique to each Spotify user
 
@@ -178,10 +177,19 @@ def callback():
                 E.g. You will see the following information structure:
                     [ ['Summer Vibes', 'https://open.spotify.com/artist/thisisanexample', 'https://imagelink'], [...] ]
                     The [...] could be:
-                        ('Stronger', 'Kanye West', 'https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x')
+                        ('Stronger', 'Kanye West', 'https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x'), 
                         ('Rap God', 'Eminem', 'https://open.spotify.com/artist/7dGJo4pcD2V6oG8kP0tJRR')
+
+    Once store, redirected to Home page
     '''
-    return render_template("home.html", username=username, playlists=playlists)
+
+    ######################
+    # TODO: MongoDB: Store the following data
+        # username
+        # playlists
+    ######################
+
+    return redirect(url_for("displayHome"))
 
 '''
 An attempt to implement server-side logout functionality; Spotify provides a URL to logout 
@@ -197,5 +205,17 @@ An attempt to implement server-side logout functionality; Spotify provides a URL
 #     else:
 #         print("Something is wrong here!")
 
+'''
+    The implementation below allows the user to redirect to another webpage using POST requests in HTML
+'''
+@app.route("/home", methods = ['GET', 'POST'])
+def displayHome():
+    if request.method == 'POST':
+        print("Received POST request!")
+        if request.form['newpage'] == 'newpage':
+            return render_template("newpage1.html")
+    else:
+        return render_template("newpage2.html")
+    
 if __name__ == "__main__":
     app.run(debug=True, port=PORT)
