@@ -7,3 +7,4 @@ venv/
 
 # Ignore paramters with private information
 *.cfg
+app/cred.json
