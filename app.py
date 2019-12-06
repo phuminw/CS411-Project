@@ -2,6 +2,7 @@ import json
 from flask import Flask, request, redirect, g, render_template, url_for
 import requests
 from urllib.parse import quote
+from app import database
 
 import configparser
 
@@ -89,6 +90,18 @@ def callback():
     username = profile_data['display_name']
     print("USER: ", username)
 
+    ######################
+    # TODO: MongoDB: Store the following data
+        # username
+        # playlists
+    # Initialize the db connection
+    database.init_db()
+
+    # Initialize a document for the current user
+    database.init_user(username)
+
+    ######################
+
     playlists = []
 
     # playlist_data["items"] contains all of user's playlists; their track names, their artists, and all their links
@@ -166,6 +179,8 @@ def callback():
         # Each playlist element in playlists possess the structure detailed below in the 'Returns' section.
         playlists.append([[playlist_name, playlist_link, playlist_image], list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))])
 
+        db_playlist = list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))
+
     '''
     Stores the following into the MongoDB database:
 
@@ -180,14 +195,8 @@ def callback():
                         ('Stronger', 'Kanye West', 'https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x'), 
                         ('Rap God', 'Eminem', 'https://open.spotify.com/artist/7dGJo4pcD2V6oG8kP0tJRR')
 
-    Once store, redirected to Home page
+    Once stored, redirected to Home page
     '''
-
-    ######################
-    # TODO: MongoDB: Store the following data
-        # username
-        # playlists
-    ######################
 
     return redirect(url_for("displayHome"))
 

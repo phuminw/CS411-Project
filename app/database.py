@@ -50,6 +50,8 @@ def insert_playlist_old(user_id, playlist_data, playlist_name):
   
     playlist += [(name, track_id, artists)]
 
+  print(playlist)
+
   old_playlists = user['playlists']
   old_playlists[playlist_name] = playlist
   insert_key(user_id, 'playlists', old_playlists)

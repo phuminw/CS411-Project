@@ -73,6 +73,8 @@ This guide was created using a **Linux OS** machine!
 ## Notes
 * Spotify does not allow *POST* requests. Instead, use *PUT* to communicate with the server. 
     - Supporting documentation: [Link](https://stackoverflow.com/questions/46119001/swift-spotify-api-error-code-405-add-to-library)
+* However, Python Flask HTTP requests do NOT support *PUT* requests.
     - You can get around this limitation by adding the redirected URL to Spotify's whitelist of supported websites on the Spotify Web API Application dashboard.
+    - Once your URL is whitelisted, you can proceed to use *POST* requests!
 * Cannot use POST or GET requests in link callback due to authorization expectations for a specific request from the Spotify server.
 * Cannot use Flask session variables as they are too small to store the required user data.
