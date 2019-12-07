@@ -230,7 +230,9 @@ An attempt to implement server-side logout functionality; Spotify provides a URL
 #         print("Something is wrong here!")
 
 '''
-    User must log into Youtube first
+    User must log into Youtube first. This section prompts the user to click a button to initiate the log in process
+
+    Once clicked, the page will redirect the user to login and then redirect the user back to a predetermined URL set in app/youtube.py under function form_url
 '''
 @app.route("/youtube_login", methods = ['GET', 'POST'])
 def youtubeLogin():
@@ -244,11 +246,29 @@ def youtubeLogin():
         return render_template("youtube_login.html")
 
 '''
+    The user will not see this page redirect
+
+    This function seeks to set up the user client id in order to create playlists
+
+    Function had to be isolated as similarly to the Spotify callback function, any POST request on our server side will render the application useless due to the interference of third party POST requests
+
+    Redirects the user to the home page, viewing his or her playlists
+'''
+@app.route("/quicksetup")
+def settingUpCode():
+    global client_ob
+    auth_token = request.args['code']
+    client_ob, cred = get_auth_client(flow, auth_token)
+    # TODO: Need to store cred into mongodb database for persistent user login
+    return redirect(url_for('displayHome'))
+
+'''
     The implementation below allows the user to redirect to another webpage using POST requests in HTML
 '''
 @app.route("/home", methods = ['GET', 'POST'])
 def displayHome():
     global current_user
+    global client_ob
 
     # At this point, we are logged into both Spotify and YouTube. We are also connected to a MongoDB to extract information from
     # Here, we will begin to extract the playlist information from MongoDB and then create YouTube playlists from them
@@ -262,22 +282,53 @@ def displayHome():
     # This is an array of arrays, each element in the array corresponds with its respective playlist
     playlist_track_info = []
 
+    # Extract the playlist titles and individual tracks from each playlist from the MongoDB and store into arrays
     for indiv_playlist in playlist_titles:
         playlist_images.append(user_dict["playlists"][indiv_playlist][0])
         playlist_track_info.append(user_dict["playlists"][indiv_playlist][1])
 
-    print("\nREACHED OUTSIDE\n")
+    # Zip the titles and the images to pass to HTML through Django
+    datapass = zip(playlist_titles, playlist_images)
+
+    # If there is a POST request, read the value sent from the USER to choose the correct playlist to redirect the user to
     if request.method == 'POST':
-        print("\nReceived POST request!\n")
-        if request.form['newpage'] == 'newpage':
-            return render_template("playlist.html")
+        playlist_title = request.form['newpage']
+        if playlist_title in playlist_titles:
+            # Find the tracks under the playlist named 'playlist_title'
+            trackinfo = playlist_track_info[playlist_titles.index(playlist_title)]
+
+            '''
+            [!!!] Begin Implementation for YouTube Playlist Generation
+            '''
+
+            # Create a new playlist
+            pl_id = create_playlist(client_ob, playlist_title, "Playlist " + playlist_title + " converted from Spotify to YouTube")
+
+            # Begin adding the tracks to the playlist
+            # To begin, first query all songs and add to an array
+            y_tracks_ids = []
+            # Current playlist tracks all stored in trackinfo
+            for vid in trackinfo:
+                # Query for max 1 result and add to video array
+                result = query(client_ob, vid, 1)
+                y_tracks_ids.append(result[0]['id'])
+
+            # Insert all the videos queried into the playlist
+            insert_videos_to_playlist(client_ob, pl_id, y_tracks_ids)
+
+            # Last step is to assemble the Playlist URL and embed the string into HTML
+            yurl = "https://www.youtube.com/watch?v={}&list={}&index=1".format(y_tracks_ids[0], pl_id)
+
+            return render_template("playlist.html", playlist_title=playlist_title, yurl=yurl)
         else:
-            return render_template("view_playlists.html")
+            print("User return not in Playlist Title, redirecting . . .")
+            return render_template("view_playlists.html", username=current_user, datapass=datapass)
+        # else:
+        #     return render_template("view_playlists.html")
     else:
-        print("\nREACHED BASE\n")
-        return render_template("view_playlists.html")
+        return render_template("view_playlists.html", username=current_user, datapass=datapass)
     
 
-    
+
 if __name__ == "__main__":
     app.run(debug=True, port=PORT)

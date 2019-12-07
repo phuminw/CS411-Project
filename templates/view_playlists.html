@@ -10,13 +10,23 @@
 </head>
 
 <body>
-   <h1> This is the BASE file </h1>
+   <h1> Listing Playlist Data for User {{ username }} </h1>
 
     <form action="#" method="POST">
         <button name="newpage" value="newpage">New Page</button>
     </form>
 
     <!-- <input type="submit" name="submit_button" value="Do Something"> -->
+
+    <h1>Playlists</h1>
+    {% for title, link in datapass %}
+        <h2>Playlist Name: {{ title }}</h2>
+        <form action="#" method="POST">
+            <button name="newpage" value="{{ title }}">Create Playlist</button>
+        </form>
+        <img src={{ link }}>
+        <hr>
+    {% endfor %}
 
 </body>
 

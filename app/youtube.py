@@ -19,7 +19,7 @@ def form_url(CLIENT_SECRET = 'cred.json'):
     except FileNotFoundError:
         return False
 
-    flow.redirect_uri = 'http://localhost:5000/home' # TODO: Change to web app address
+    flow.redirect_uri = 'http://localhost:5000/quicksetup' # TODO: Change to web app address
     return flow, flow.authorization_url()[0]
 
 def get_auth_client(flow, code):
@@ -100,6 +100,7 @@ def query(client, query, maxResults, thumbnails=False):
 
     # Check client object type
     if type(client) != Resource:
+        print("[!!!] CLIENT RESOURCE CORRUPTED")
         return None
 
     response = client.search().list(part='snippet',maxResults=maxResults,q=query,type='video').execute()
@@ -234,18 +235,3 @@ def insert_videos_to_playlist(client, playlist_id, video_ids):
         return True
     except:
         return False # Something went wrong
-
-# Testing youtube.py functionality
-def main():
-    flow, url = form_url()
-    
-    client, cred = get_auth_client(flow, 'CODE_FROM_CALLBACK')
-    # print(cred_tokens.keys())
-    # with open('cred_auth.json', 'r') as c:
-    #     info = json.load(c)
-    # print("Info: ", info)
-    # print(info.keys())
-
-
-if __name__ == '__main__':
-    main()
