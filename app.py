@@ -2,7 +2,7 @@ import json
 from flask import Flask, request, redirect, g, render_template, url_for
 import requests
 from urllib.parse import quote
-from app import database
+from app.database import *
 from app.youtube import *
 
 import configparser
@@ -38,6 +38,7 @@ SHOW_DIALOG_str = str(SHOW_DIALOG_bool).lower()
 # Store flow object to use for Youtube
 flow = None
 client_ob = None
+current_user = ""
 
 auth_query_parameters = {
     "response_type": "code",
@@ -57,6 +58,7 @@ def index():
 
 @app.route("/callback/q")
 def callback():
+    global current_user
     # Auth Step 4: Requests refresh and access tokens
     auth_token = request.args['code']
     code_payload = {
@@ -93,20 +95,16 @@ def callback():
 
     # Store the user's Spotify username
     username = profile_data['display_name']
+
+    # Set up the current user for lookup 
+    current_user = username
     print("USER: ", username)
 
-    ######################
-    # TODO: MongoDB: Store the following data
-        # username
-        # playlists
     # Initialize the db connection
-
-   # database.init_db()
+    init_db()
 
     # Initialize a document for the current user
-   # database.init_user(username)
-
-    ######################
+    init_user(username)
 
     playlists = []
 
@@ -153,6 +151,8 @@ def callback():
         arr_track_artists = []
         arr_track_artist_links = []
 
+        arr_track_info = []
+
         # The for loop iterates through the track_data, working on one song/track at a time
         # Pulls the track's name, artist, and artist link and appends to the respective arrays declared above
         for items in track_data:
@@ -175,6 +175,10 @@ def callback():
                 track_artist_link = track_strings.get("external_urls").get("spotify")
                 arr_track_artist_links.append(track_artist_link)
 
+                # Combine the information to reduce string extraction from the database
+                track_info = track_name + " by " + track_artist
+                arr_track_info.append(track_info)
+
             except:
                 # If the playlist is empty, then the playlist on the application will be displayed will be empty
                 # Will break to avoid storing extraneous information into playlists
@@ -183,9 +187,15 @@ def callback():
         
         # Once the current playlist has been completely iterated through, the arrays will then be appended to the playlists array
         # Each playlist element in playlists possess the structure detailed below in the 'Returns' section.
-        playlists.append([[playlist_name, playlist_link, playlist_image], list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))])
+        #playlists.append([[playlist_name, playlist_link, playlist_image], list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))])
+        playlists.append([[playlist_name, playlist_link, playlist_image], arr_track_info])
 
-        # db_playlist = list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))
+
+        # Create data structure to store current playlist data in
+        db_playlist = list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))
+
+        # Store playlist information on current user into db
+        input_playlist(username, playlist_name, playlist_image, arr_track_info)
 
     '''
     Stores the following into the MongoDB database:
@@ -203,9 +213,6 @@ def callback():
 
     Once stored, redirected to Home page
     '''
-
-    #database.input_playlist(username, playlist_name, db_playlist)
-
     return redirect(url_for("youtubeLogin"))
 
 '''
@@ -241,17 +248,36 @@ def youtubeLogin():
 '''
 @app.route("/home", methods = ['GET', 'POST'])
 def displayHome():
+    global current_user
+
+    # At this point, we are logged into both Spotify and YouTube. We are also connected to a MongoDB to extract information from
+    # Here, we will begin to extract the playlist information from MongoDB and then create YouTube playlists from them
+    user_dict = get_user(current_user)
+    playlist_titles = list(user_dict['playlists'].keys())
+
+    # Store image urls for each playlist
+    playlist_images = []
+
+    # Store track information for each playlist
+    # This is an array of arrays, each element in the array corresponds with its respective playlist
+    playlist_track_info = []
+
+    for indiv_playlist in playlist_titles:
+        playlist_images.append(user_dict["playlists"][indiv_playlist][0])
+        playlist_track_info.append(user_dict["playlists"][indiv_playlist][1])
+
+    print("\nREACHED OUTSIDE\n")
     if request.method == 'POST':
-        print("Received POST request!")
+        print("\nReceived POST request!\n")
         if request.form['newpage'] == 'newpage':
-            return render_template("newpage1.html")
+            return render_template("playlist.html")
+        else:
+            return render_template("view_playlists.html")
     else:
-        code = request.args.get('code')
-        client_ob, cred = get_auth_client(flow, code)
-        print(get_playlist(client_ob))
-        # TODO: Store Youtube cred into database, linked to specific user
-        # TODO: Check database if user cred works
-        return render_template("newpage2.html")
+        print("\nREACHED BASE\n")
+        return render_template("view_playlists.html")
+    
+
     
 if __name__ == "__main__":
     app.run(debug=True, port=PORT)

@@ -99,10 +99,11 @@ def youtube_query_songs_old(user_id, playlist_name):
 
   return search_strings
 
-def input_playlist(user_id, playlist_name, playlist):
+def input_playlist(user_id, playlist_name, playlist_image, playlist):
   ''' inputs playlist into db entry for user_id
       user_id: string
       playlist_name: string
+      playlist_image: string (url)
       playlist: array of [song name, song link, artist name]
   '''
   
@@ -112,7 +113,7 @@ def input_playlist(user_id, playlist_name, playlist):
 
   
   old_playlists = user['playlists']
-  old_playlists[playlist_name] = playlist
+  old_playlists[playlist_name] = playlist_image, playlist
   insert_key(user_id, 'playlists', old_playlists)
 
 def youtube_query_songs(user_id, playlist_name):
