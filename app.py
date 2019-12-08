@@ -176,7 +176,7 @@ def callback():
                 arr_track_artist_links.append(track_artist_link)
 
                 # Combine the information to reduce string extraction from the database
-                track_info = track_name + " by " + track_artist
+                track_info = track_name + " by " + track_artist + " lyrics"
                 arr_track_info.append(track_info)
 
             except:
@@ -311,13 +311,16 @@ def displayHome():
             for vid in trackinfo:
                 # Query for max 1 result and add to video array
                 result = query(client_ob, vid, 1)
+                print("[!!!] RESULT: ", result)
                 y_tracks_ids.append(result[0]['id'])
+
+            print("\n[!!!] TRACKS: ", y_tracks_ids)
 
             # Insert all the videos queried into the playlist
             insert_videos_to_playlist(client_ob, pl_id, y_tracks_ids)
 
             # Last step is to assemble the Playlist URL and embed the string into HTML
-            yurl = "https://www.youtube.com/watch?v={}&list={}&index=1".format(y_tracks_ids[0], pl_id)
+            yurl = "https://www.youtube.com/embed/videoseries?list={}".format(pl_id)
 
             return render_template("playlist.html", playlist_title=playlist_title, yurl=yurl)
         else:

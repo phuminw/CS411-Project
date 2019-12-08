@@ -3,6 +3,9 @@
 ## Disclaimer!
 This guide was created using a **Linux OS** machine!
 
+### *TEMPORARY*
+When running `python app.py` (the Flask server), expect an error stating
+
 <hr>
 
 ## Setup
@@ -78,3 +81,14 @@ This guide was created using a **Linux OS** machine!
     - Once your URL is whitelisted, you can proceed to use *POST* requests!
 * Cannot use POST or GET requests in link callback due to authorization expectations for a specific request from the Spotify server.
 * Cannot use Flask session variables as they are too small to store the required user data.
+* You cannot store JSON information with single quotes. They **must** be double quotes.
+* In Django, do not put in {{}} into other {{}}
+    - Supporting Documentation: [Link](https://stackoverflow.com/questions/27704913/templatesyntaxerror-expected-token-got/47025013)
+* In order to create playlists using the Youtube API, you **MUST** be logging into our application with an account that possesses a Youtube Channel. You will not be able to create playlists if you are not logged in with a channel.
+* In my Linux VM (running Ubuntu 16.04 OS), I could not run the Flask application on Firefox. Switch to Chrome if you are experiencing this issue.
+    - Firefox's display stated a tab crashed repeatedly.
+* You may run into the following errors: 
+    * KeyError: 'access_token'
+        - `access_token = response_data["access_token"]`
+        - Solution: Try accessing the same URL again, should refresh. E.g. go to localhost:portnumber again.
+    

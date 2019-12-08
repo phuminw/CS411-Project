@@ -131,7 +131,7 @@ def create_playlist(client, title, description=''):
         return None
 
     try:
-        return client.playlists().insert(part='snippet', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN', 'privacyStatus':'private'}}).execute()['id']
+        return client.playlists().insert(part='snippet', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN', 'privacyStatus':'public'}}).execute()['id']
 
     except HttpError:
         return False
@@ -229,7 +229,7 @@ def insert_videos_to_playlist(client, playlist_id, video_ids):
         return None
 
     try:
-        for v in videos:
+        for v in video_ids:
             insert_to_playlist(client, playlist_id, v)
         
         return True
