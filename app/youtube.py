@@ -131,7 +131,7 @@ def create_playlist(client, title, description=''):
         return None
 
     try:
-        return client.playlists().insert(part='snippet', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN', 'privacyStatus':'public'}}).execute()['id']
+        return client.playlists().insert(part='snippet,status', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN'}, 'status': {'privacyStatus':'public'}}).execute()['id']
 
     except HttpError:
         return False
