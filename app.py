@@ -304,6 +304,9 @@ def displayHome():
             # Create a new playlist
             pl_id = create_playlist(client_ob, playlist_title, "Playlist " + playlist_title + " converted from Spotify to YouTube")
 
+            # Add a short embeddable video at the beginning of each playlist; if the first video is unable to be embedded, then the entire playlist will not be attached
+            #insert_to_playlist(client_ob, pl_id, 'jhFDyDgMVUI')
+
             # Begin adding the tracks to the playlist
             # To begin, first query all songs and add to an array
             y_tracks_ids = []
