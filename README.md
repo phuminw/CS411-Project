@@ -9,11 +9,11 @@
 ## Assignments
 The following assignments are located in the following directories:
 
-1. CS411 Project Assignment 1: [Pitches]()
-2. CS411 Project Assignment 2: [User Stories]()
-3. CS411 Project Assignment 3: [Prototype Demo #1 (API)]()
-4. CS411 Project Assignment 4: [Analysis / Platform Decision]()
-5. CS411 Project Assignment 5: [Prototype Demo #2 (OAuth)]()
+1. CS411 Project Assignment 1: [Pitches](https://github.com/dlhi/CS411-Project/blob/master/docs/01%20Project%20Proposals/project_proposals.md)
+2. CS411 Project Assignment 2: [User Stories](https://github.com/dlhi/CS411-Project/blob/master/docs/02%20User%20Stories/UserStories.pdf)
+3. CS411 Project Assignment 3: [Prototype Demo #1 (API)](https://github.com/dlhi/CS411-Project/blob/master/prototype/03%20api_demo/app.py)
+4. CS411 Project Assignment 4: [Analysis / Platform Decision](https://github.com/dlhi/CS411-Project/blob/master/docs/04%20Decisions/CAS411%20Team%20Assignment%203.pdf)
+5. CS411 Project Assignment 5: [Prototype Demo #2 (OAuth)](https://github.com/dlhi/CS411-Project/blob/master/prototype/05%20oauth_demo/app.py)
 
 ## Setup
 
