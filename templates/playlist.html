@@ -5,14 +5,15 @@
     <meta charset="utf-8">
     <title>New Page</title>
     <!-- Main CSS sheet -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/single_play.css') }}">
+   
 </head>
 
 <body>
-   <h1>You are viewing Playlist: {{ playlist_title }}</h1>
-   <iframe src={{ yurl }} width="853" height="480" frameborder="0" allowfullscreen></iframe>
-   <p>The URL is {{ yurl }} </p>
+   <h1>You are viewing playlist: {{ playlist_title }}</h1>
+
+   <iframe src={{ yurl }} width="853" height="480" frameborder="0" allowfullscreen style="position:relative; left: 25%";></iframe>
+   
 </body>
 
 </html>

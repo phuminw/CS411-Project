@@ -130,11 +130,8 @@ def create_playlist(client, title, description=''):
     if type(client) != Resource:
         return None
 
-    try:
-        return client.playlists().insert(part='snippet,status', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN'}, 'status': {'privacyStatus':'public'}}).execute()['id']
-
-    except HttpError:
-        return False
+    
+    return client.playlists().insert(part='snippet,status', body={'snippet':{'title':title, 'description':description, 'defaultLanguage':'EN'}, 'status': {'privacyStatus':'public'}}).execute()['id']
 
 def get_playlist(client, thumbnails=False):
     ''' Get all playlists on the account 
@@ -228,10 +225,7 @@ def insert_videos_to_playlist(client, playlist_id, video_ids):
     if type(client) != Resource:
         return None
 
-    try:
-        for v in video_ids:
-            insert_to_playlist(client, playlist_id, v)
+    
+    for v in video_ids:
+        insert_to_playlist(client, playlist_id, v)
         
-        return True
-    except:
-        return False # Something went wrong

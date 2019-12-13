@@ -44,8 +44,6 @@ auth_query_parameters = {
     "response_type": "code",
     "redirect_uri": REDIRECT_URI,
     "scope": SCOPE,
-    # "state": STATE,
-    # "show_dialog": SHOW_DIALOG_str,
     "client_id": CLIENT_ID
 }
 
@@ -113,18 +111,15 @@ def callback():
     for playlist in playlist_data["items"]:
         
         # Store the playlist name
-        # print("Playlist Name: {} \n".format(playlist['name']))
         playlist_name = playlist['name']
        
         # Store the playlist's link (to the Spotify playlist)
-        # print("Playlist Link: {} \n".format(playlist['external_urls']['spotify']))
         playlist_link = playlist['external_urls']['spotify']
 
 
         # Attempt to grab the Playlist's image 
         try: 
             # Store the playlist image's URL
-            # print("Playlist Image: {} \n".format(playlist['images']))
             playlist_image = playlist['images'][0].get('url')
         except:
             # If no image available, print the response
@@ -132,7 +127,6 @@ def callback():
 
         # Load the playlist data: storing the data structure containing the playlist's entire track data
         track_response = requests.get(playlist['tracks']['href'], headers=authorization_header)
-        # print("API response: {} \n".format(track_response))
 
         # Convert the returned track data for this specific playlist to plain text and access the stored track info
         track_data = json.loads(track_response.text)
@@ -161,17 +155,14 @@ def callback():
                 track_strings = items['track']['album']['artists'][0]
 
                 # Extract the track name and store into array arr_track_names 
-                # print("Track Name: ", items['track']['name'])
                 track_name = items['track']['name']
                 arr_track_names.append(track_name)
 
                 # Extract the track artist and store into array arr_track_artists
-                # print("Track Artist: ", track_strings.get("name"))
                 track_artist = track_strings.get("name")
                 arr_track_artists.append(track_artist)
 
                 # Extract the track artist link and store into array arr_track_artist_links
-                # print("Track Artist URL: ", track_strings.get("external_urls").get("spotify"))
                 track_artist_link = track_strings.get("external_urls").get("spotify")
                 arr_track_artist_links.append(track_artist_link)
 
@@ -187,7 +178,6 @@ def callback():
         
         # Once the current playlist has been completely iterated through, the arrays will then be appended to the playlists array
         # Each playlist element in playlists possess the structure detailed below in the 'Returns' section.
-        #playlists.append([[playlist_name, playlist_link, playlist_image], list(zip(arr_track_names, arr_track_artists, arr_track_artist_links))])
         playlists.append([[playlist_name, playlist_link, playlist_image], arr_track_info])
 
 
@@ -214,20 +204,6 @@ def callback():
     Once stored, redirected to Home page
     '''
     return redirect(url_for("youtubeLogin"))
-
-'''
-An attempt to implement server-side logout functionality; Spotify provides a URL to logout 
-    which is presently used instead
-'''
-# @app.route("/logout")
-# def logout():
-#     print("We're at least in the logout!")
-#     if request.method == 'POST':
-#         print("Logging out!")
-#         if 'Logout' in request.form:
-#             return redirect("https://accounts.spotify.com/en/logout", code=302)
-#     else:
-#         print("Something is wrong here!")
 
 '''
     User must log into Youtube first. This section prompts the user to click a button to initiate the log in process
@@ -297,15 +273,8 @@ def displayHome():
             # Find the tracks under the playlist named 'playlist_title'
             trackinfo = playlist_track_info[playlist_titles.index(playlist_title)]
 
-            '''
-            [!!!] Begin Implementation for YouTube Playlist Generation
-            '''
-
             # Create a new playlist
             pl_id = create_playlist(client_ob, playlist_title, "Playlist " + playlist_title + " converted from Spotify to YouTube")
-
-            # Add a short embeddable video at the beginning of each playlist; if the first video is unable to be embedded, then the entire playlist will not be attached
-            #insert_to_playlist(client_ob, pl_id, 'jhFDyDgMVUI')
 
             # Begin adding the tracks to the playlist
             # To begin, first query all songs and add to an array
@@ -314,10 +283,7 @@ def displayHome():
             for vid in trackinfo:
                 # Query for max 1 result and add to video array
                 result = query(client_ob, vid, 1)
-                print("[!!!] RESULT: ", result)
                 y_tracks_ids.append(result[0]['id'])
-
-            print("\n[!!!] TRACKS: ", y_tracks_ids)
 
             # Insert all the videos queried into the playlist
             insert_videos_to_playlist(client_ob, pl_id, y_tracks_ids)
@@ -325,16 +291,15 @@ def displayHome():
             # Last step is to assemble the Playlist URL and embed the string into HTML
             yurl = "https://www.youtube.com/embed/videoseries?list={}".format(pl_id)
 
+            # Create a link for the user to view their playlist on YouTube
+            purl = "https://www.youtube.com/playlist?list={}".format(pl_id)
+
             return render_template("playlist.html", playlist_title=playlist_title, yurl=yurl)
         else:
             print("User return not in Playlist Title, redirecting . . .")
             return render_template("view_playlists.html", username=current_user, datapass=datapass)
-        # else:
-        #     return render_template("view_playlists.html")
     else:
         return render_template("view_playlists.html", username=current_user, datapass=datapass)
-    
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=PORT)

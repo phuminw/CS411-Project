@@ -5,18 +5,18 @@
     <meta charset="utf-8">
     <title>Youtube Login</title>
     <!-- Main CSS sheet -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/youtube_login.css') }}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 
 <body>
-    <header style="background-image: url('/static/img/code.jpeg')"></header>
+    <div class="centered">
+        <h1> Youtube </h1>
 
-    <h1> Please click the following button to login to YouTube! </h1>
-
-    <form action="#" method="POST">
-        <button name="youtube" value="youtube">Login</button>
-    </form>
+        <form action="#" method="POST">
+            <button class="button" name="youtube" value="youtube">Login</button>
+        </form>
+    </div>
 
     <!-- <input type="submit" name="submit_button" value="Do Something"> -->
 

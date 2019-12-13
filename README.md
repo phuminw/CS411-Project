@@ -1,12 +1,19 @@
 # CS411 Final Project
 
 ## Disclaimer!
-This guide was created using a **Linux OS** machine!
-
-### *TEMPORARY*
-When running `python app.py` (the Flask server), expect an error stating
+- This guide was created using a **Linux OS** machine!
+- When running `python app.py` (the Flask server), expect an error stating
 
 <hr>
+
+## Assignments
+The following assignments are located in the following directories:
+
+1. CS411 Project Assignment 1: [Pitches]()
+2. CS411 Project Assignment 2: [User Stories]()
+3. CS411 Project Assignment 3: [Prototype Demo #1 (API)]()
+4. CS411 Project Assignment 4: [Analysis / Platform Decision]()
+5. CS411 Project Assignment 5: [Prototype Demo #2 (OAuth)]()
 
 ## Setup
 
